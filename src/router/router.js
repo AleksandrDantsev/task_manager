@@ -1,8 +1,8 @@
-import Home from "../pages/Home/Home.vue"
+import TaskPanel from "../pages/TaskPanel/TaskPanel.vue"
 import { createRouter, createWebHistory } from 'vue-router';
 
 const routes  = [
-  { path: '/', name: 'Home', component: Home },
+  { path: '/', name: 'TaskPanel', component: TaskPanel },
   // { path: '/about', component: 'rtrty' }
 ];
 

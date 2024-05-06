@@ -1,12 +1,27 @@
 <script setup>
 import { computed, ref } from 'vue';
-import TaskCanvas from '../../modules/TaskCanvas/main/TaskCanvas.vue';
+import { TaskCanvas } from '../../modules/TaskCanvas/index';
+import { TaskFiltersRow } from '../../modules/TaskFiltersRow';
 import { getReadableDate } from "../../helpers/getReadableDate";
+import { useStore } from 'vuex';
+import { TaskInfoSidePanel } from '../../modules/TaskInfoSidePanel/index';
+import shadow from "../../hoc/shadow.vue";
+
+const shiftDate = ref(0);
+const store = useStore();
+
+const isOpenPanel = computed(() => store.state.isOpenPanel);
+const currentTask = computed(() => store.state.currentInfoEl);
+
+const closeWindow = () => store.commit("togglePanel", false);
+
+const changeShiftDate = (bool) => bool === true ? shiftDate.value = shiftDate.value + 1 :
+                                                  shiftDate.value = shiftDate.value - 1; 
 
 const arrayDateShift = computed(() => {
     const arrayDate = [];
     for (let i = 0; i < 7; i++) {
-        arrayDate.push(getReadableDate(-i))
+        arrayDate.push(getReadableDate(-i + shiftDate.value));
     }
     return arrayDate;
 })
@@ -14,19 +29,31 @@ const arrayDateShift = computed(() => {
 </script>
 
 <template>
-    <div class="task-panel">
-        <TaskCanvas v-for="item of arrayDateShift"
-                    :key="item"
-                    :date="item"/>
+    <div class="wrapper">
+        <TaskFiltersRow :changeShiftDate="changeShiftDate" :currentDate="arrayDateShift[0]"/>
+        <div class="task-panel">
+            <TaskCanvas v-for="item of arrayDateShift"
+                        :key="item"
+                        :date="item"/>
+        </div>
+        <shadow :isOpenWindow="isOpenPanel" 
+                @close-window="(isCurrentTarget) => isCurrentTarget ? closeWindow() : ''">
+            <TaskInfoSidePanel :data="currentTask" :name="currentTask['taskName']"/>
+        </shadow>
     </div>
 </template>
 
 <style scoped lang="scss">
+    .wrapper {
+        display: flex;
+        flex-direction: column; 
+        padding: 10px;
+        background-color: #f5f5f5d8;
+        width: 100%; 
+    }
     .task-panel {
         display: flex;
-        width: 100%; 
-        min-height: 100%;
+        min-height: calc(100% - 90px);
         overflow-x: auto;
-        background-color: #f5f5f5d8;
     }
 </style>

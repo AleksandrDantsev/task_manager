@@ -1,4 +1,4 @@
-export const getReadableDate = (shiftBackDay = 0) => {
+export const getReadableDate = (shiftBackDay = 0, customDay=null) => {
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     
@@ -8,7 +8,7 @@ export const getReadableDate = (shiftBackDay = 0) => {
     const day = date.getDate();
     const year = date.getYear();
 
-    const rightDate = new Date(year, mounth, day - shiftBackDay);
+    const rightDate = new Date(year, mounth, customDay === null ? day - shiftBackDay : customDay);
 
     const dayOfWeek = daysOfWeek[rightDate.getDay()];
     const dayOfMonth = rightDate.getDate();

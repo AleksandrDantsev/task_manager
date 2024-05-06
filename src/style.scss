@@ -1,16 +1,29 @@
  html {
     line-height: 1.15; /* 1 */
     -webkit-text-size-adjust: 100%; /* 2 */
+    height: 100%;
+    // overflow: hidden;
   }
   
   body {
     margin: 0;
+    height: 100%;
   }
- 
+ #app {
+    height: 100%;
+ }
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  color: #3a3a3a;
+}
   main {
     display: block;
   }
-  
+  ul, ol, dl {
+    list-style: none;
+  }
   h1 {
     font-size: 2em;
     margin: 0.67em 0;
@@ -84,8 +97,14 @@
     line-height: 1.15; /* 1 */
     margin: 0; /* 2 */
     border: 0;
+    background-color: unset;
+    &:focus {
+      outline: solid 1px rgb(231, 231, 231);
+    }
   }
- 
+ h1, h2, h3, h4, h5, h6 {
+    color: #303030;
+ }
   
   button,
   input { /* 1 */

@@ -12,6 +12,7 @@
     .card-drop {
         position: absolute;
         top: 35px;
+        z-index: 900;
         border-radius: 10px;
         background-color: #fff;
         box-shadow: 0 0 5px 0 #d4d4d4d8;

@@ -22,8 +22,8 @@ const props = defineProps({
         position: relative;
         height: 23px;
         padding: 3px 15px;
-        border-radius: 5px;
-        font-size: 14px;
+        border-radius: 3px;
+        font-size: 13px;
         font-weight: 600;
         overflow: hidden;
         transition-duration: 200ms;

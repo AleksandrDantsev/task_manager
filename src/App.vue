@@ -1,6 +1,19 @@
 <script setup>
+import { computed } from "vue";
 import { SideBar } from "./modules/SideBar/index";
+import shadow from "./hoc/shadow.vue";
+import { TaskInfoSidePanel } from "./modules/TaskInfoSidePanel/index";
+import { useStore } from 'vuex';
+
+const store = useStore();
+
+const isOpenPanel = computed(() => store.state.isOpenPanel);
+const currentTask = computed(() => store.state.currentInfoEl);
+
+const closeWindow = () => store.commit("togglePanel", false);
+
 </script>
+
 <template>
     <div class="wrapper">
         <SideBar />
@@ -10,6 +23,10 @@ import { SideBar } from "./modules/SideBar/index";
             </header>
             <router-view></router-view>
         </div>
+        <shadow :isOpenWindow="isOpenPanel" 
+                @close-window="(isCurrentTarget) => isCurrentTarget ? closeWindow() : ''">
+            <TaskInfoSidePanel :data="currentTask" :name="currentTask['taskName']"/>
+        </shadow>
     </div>
 </template>
 

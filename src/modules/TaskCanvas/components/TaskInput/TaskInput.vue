@@ -3,22 +3,23 @@ import { ref, computed } from "vue";
 import typeIcon from "../../../../assets/svg/typeTask.svg";
 import assigneesIcon from "../../../../assets/svg/assignees.svg";
 import projectIcon from "../../../../assets/svg/project.svg"
-import { LS } from "../../../../helpers/LocalStorageAction";
+import { useStore } from "vuex";
+import { capitalize } from "../../../../helpers/capitalize";
 
 const maxLentgthArea = 200;
 const isFocus = ref(false);
+const store = useStore();
 
 const props = defineProps({
     nameTaskInput: String,
-    changeState: Function,
     date: String,
 })
 
 const createFocus = () => {
-    if (!isFocus.value) {
-        isFocus.value = true;
-    }
-    setTimeout(() => isFocus.value = false, 8000);
+    isFocus.value = true;
+}
+const focusOut = () => {
+    if (isFocus.value = true) isFocus.value = false;
 }
 
 const countInjectedLetters = computed(() => {
@@ -27,15 +28,19 @@ const countInjectedLetters = computed(() => {
 
 const createTask = (e) => {
     e.target.value = '';
-    LS.createTask(props.date, props.nameTaskInput);
-    props.changeState()
+    const capitalizeName = capitalize(props.nameTaskInput);
+
+    if (capitalizeName.length > 0) {
+        store.commit("addTask", [props.date, capitalizeName])
+        e.target.value = '';
+    }
 }
 
 </script>
 
 <template>
-    <div class="task_input-block">
-        <div class="task_text-area" @click="createFocus">
+    <div class="task_input-block"  >
+        <div class="task_text-area" @click="createFocus" @focusout.stop="focusOut">
             <textarea @input="$emit('name-task', $event.target.value)" 
                                         @keydown.enter.prevent="createTask"
                                         class="text_area" 
@@ -46,7 +51,7 @@ const createTask = (e) => {
                                         <div :class="isFocus ? 'task_input-info' : 'task_info-animation'">
             <div class="task_input__maxlength">{{countInjectedLetters}}</div>
             <div class="task_input__hint" @click="createTask">Press Enter</div>
-            <div class="task_input__info-task">
+            <div v-if="isFocus" class="task_input__info-task" >
                 <ul class="task_input__icons">
                     <li class="task_type"><img :src="typeIcon" alt="type"></li>
                     <li class="task_assignees"><img :src="assigneesIcon" alt="assignees"></li>
@@ -65,7 +70,7 @@ const createTask = (e) => {
         padding-top: 5px;
         width: 100%;
         background-color: #fff;
-        border-radius: 6px;
+        border-radius: 5px;
         overflow: hidden;
     }
     .text_area {
@@ -93,7 +98,7 @@ const createTask = (e) => {
         height: 0;
         visibility: hidden;
         opacity: 0;
-        transition-duration: 250ms;
+        transition-duration: 200ms;
         div {
             display: none;
         }

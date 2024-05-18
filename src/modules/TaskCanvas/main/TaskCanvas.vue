@@ -11,17 +11,20 @@ const props = defineProps({
 
 const nameTask = ref('');
 const store = useStore();
-const cards = computed(() => store.state.tasksLocalArray?.[props.date]);
-console.log(cards)
+
+const cards = computed(() => store.state.tasksLocalArray[props.date]);
+
 
 </script>
 
 <template>
     <div class="task-canvas">
         <TaskDate :date="props.date"/>
+        
         <TaskInput @name-task="value => nameTask = value"
                     :nameTaskInput="nameTask" 
                     :date="props.date"/>
+
         <div class="tasks_box">
             <TaskCard v-for="(item, i) of cards"
                         :key="item['id']"

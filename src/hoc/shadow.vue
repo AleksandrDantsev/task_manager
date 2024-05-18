@@ -40,11 +40,6 @@ const props = defineProps({
     }
 
     @keyframes hideAnim {
-        // from {
-        //     visibility: visible;
-        //     opacity: 1;
-        //     transform: initial;
-        // } 
         to {
             visibility: hidden;
             opacity: 0;

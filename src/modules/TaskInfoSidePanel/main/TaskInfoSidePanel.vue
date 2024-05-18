@@ -23,9 +23,8 @@ const props = defineProps({
                             :type="props.data.type"
                             :timeLimit="props.data.timeLimit"
                             :date="props.data.date"
+                            :id="props.data.id"
                             :priority="props.data.priority"
-                            :subtasks="props.data.subtasks"
-                            :comments="props.data.comments"
                 />
             </div>
         </div>
@@ -35,21 +34,24 @@ const props = defineProps({
 <style scoped lang="scss">
     .wrapper_content {
         padding: 30px;
+        overflow-y: auto;
+        height: 70%;
     }
     .task-panel-side {
         position: fixed;
         right: calc(50%);
         top: 40px;
         bottom: 40px;
-        width: 50%;
+        width: 58%;
         transform: translate3d(50%, 0, 0);
         box-shadow: 0 2px 10px 0 #d4d4d4d8;
-        border-radius: 10px;
+        border-radius: 3px;
+        overflow: hidden;
         background-color: #fff;
     }
     .task-panel__name {
         h2 {
-            font-size: 2rem;
+            font-size: 1.9rem;
         }
     }
 </style>

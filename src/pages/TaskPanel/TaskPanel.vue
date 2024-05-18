@@ -3,18 +3,9 @@ import { computed, ref } from 'vue';
 import { TaskCanvas } from '../../modules/TaskCanvas/index';
 import { TaskFiltersRow } from '../../modules/TaskFiltersRow';
 import { getReadableDate } from "../../helpers/getReadableDate";
-import { useStore } from 'vuex';
-import { TaskInfoSidePanel } from '../../modules/TaskInfoSidePanel/index';
-import shadow from "../../hoc/shadow.vue";
+
 
 const shiftDate = ref(0);
-const store = useStore();
-
-const isOpenPanel = computed(() => store.state.isOpenPanel);
-const currentTask = computed(() => store.state.currentInfoEl);
-
-const closeWindow = () => store.commit("togglePanel", false);
-
 const changeShiftDate = (bool) => bool === true ? shiftDate.value = shiftDate.value + 1 :
                                                   shiftDate.value = shiftDate.value - 1; 
 
@@ -36,10 +27,6 @@ const arrayDateShift = computed(() => {
                         :key="item"
                         :date="item"/>
         </div>
-        <shadow :isOpenWindow="isOpenPanel" 
-                @close-window="(isCurrentTarget) => isCurrentTarget ? closeWindow() : ''">
-            <TaskInfoSidePanel :data="currentTask" :name="currentTask['taskName']"/>
-        </shadow>
     </div>
 </template>
 
@@ -48,7 +35,7 @@ const arrayDateShift = computed(() => {
         display: flex;
         flex-direction: column; 
         padding: 10px;
-        background-color: #f5f5f5d8;
+        background-color: #fafafad8;
         width: 100%; 
     }
     .task-panel {

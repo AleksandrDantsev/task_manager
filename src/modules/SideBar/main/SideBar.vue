@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import NavigationMenu from "../components/NavigationMenu/NavigationMenu.vue";
 
 
 const isClosedSideBar = ref(false);
@@ -19,13 +20,14 @@ const toggleShiftBar = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="#b3b3b3" viewBox="0 0 17 17"><path d="m15.2 8.5-4.35 3.35-.7-.7 2.64-2.65-2.64-2.65.7-.7 3.36 3.35zM7 17h1V0H7v17z"/></svg>
             </div>
         </div>
+        <NavigationMenu :isClosedSideBar="isClosedSideBar" />
     </nav>
 </template>
 
 <style scoped lang="scss">
     .side-panel {
         min-width: 20%;
-        height: 100%;
+        height: auto;
         overflow: hidden;
         border-right: solid 1px #e6e6e6;
     }

@@ -7,7 +7,7 @@
 </script>
 
 <template>
-    <RouterLink :to="link" activeClass="active-link">
+    <RouterLink :to="link || ''" activeClass="active-link">
         <div class="link-menu" :class="{'center-icon': isClosedSideBar}">
                 <slot></slot>
             <div v-if="!isClosedSideBar" class="name">{{ name }}</div>

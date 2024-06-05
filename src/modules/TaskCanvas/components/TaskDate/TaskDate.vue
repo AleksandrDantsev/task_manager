@@ -15,6 +15,6 @@ const props = defineProps({
 <style scoped lang="scss">
     .task_date {
         color: #a8a8a8;
-        padding: 10px 0;
+        padding: 10px;
     }
 </style>

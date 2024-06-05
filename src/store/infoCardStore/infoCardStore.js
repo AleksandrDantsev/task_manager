@@ -1,71 +1,30 @@
-import { createStore } from "vuex";
 import { getReadableDate } from "../../helpers/getReadableDate";
+import { createTask } from "../../helpers/createTask";
+import { saveToLocalStorage } from "../../helpers/toLocalStorage";
 
 const tasks = JSON.parse(localStorage.getItem("tasks")) || {};
+const binTasks = JSON.parse(localStorage.getItem("bin")) || [];
 
-const saveToLocalStorage = (saveObject, nameStorage = "tasks") => {
-    localStorage.setItem(nameStorage, JSON.stringify(saveObject));
-};
-
-function createTask(
-    date,
-    name,
-    type = "Action",
-    priority = null,
-    timeLimit = null,
-    assignees = null,
-    complete = false,
-    project = "",
-    subtask = "",
-    comment = ""
-) {
-    const timeSince1970 = new Date().getTime();
-
-    const dataTask = {
-        taskName: name,
-        id: timeSince1970,
-        type,
-        date,
-        priority,
-        timeLimit,
-        assignees,
-        complete,
-        project,
-        comments: [],
-        subtasks: [],
-    };
-
-    if (subtask) {
-        dataTask.subtasks.push(subtask); // subtask -> { name: 'string', state: boolean }
-    }
-    if (comment) {
-        dataTask.comments.push(comment); // comment -> { creator: 'string', text: 'string', time: 'string' }
-    }
-
-    const localTasks = JSON.parse(localStorage.getItem("tasks")) || {};
-
-    if (!localTasks)
-        localStorage.setItem("tasks", JSON.stringify({ [date]: [dataTask] }));
-
-    if (!localTasks?.[date]) {
-        localTasks[date] = [dataTask];
-    } else {
-        localTasks[date].push(dataTask);
-    }
-
-    localStorage.setItem("tasks", JSON.stringify(localTasks));
-    return localTasks;
-}
-
-export default createStore({
+export const infoTask = {
     state() {
         return {
             tasksLocalArray: tasks,
             isOpenPanel: false,
             currentInfoEl: {},
+            sortType: "sort_by_default",
+            binCard: binTasks,
         };
     },
     mutations: {
+        deleteTaskFromBin(state, id) {
+            let binTask = state.binCard;
+            if (binTask.length) {
+                binTask = binTask.filter(el => el.id !== id);
+
+                state.binCard = binTask;
+                saveToLocalStorage(state.binCard, "bin");
+            }
+        },
         setCurrentTask(state, data) {
             state.currentInfoEl = data;
         },
@@ -73,9 +32,8 @@ export default createStore({
             state.isOpenPanel = isOpen;
         },
         addCommentOrSubtask(state, char) {
-            // type -> comments | subtasks
-            const tasks = state.tasksLocalArray;
-            const [date, id, content, type] = char;
+            const [date, id, content, type, project] = char; // type -> comments | subtasks
+            const tasks = state.tasksLocalArray?.[project];
             const currentTask = tasks?.[date];
 
             if (currentTask) {
@@ -84,7 +42,7 @@ export default createStore({
                         currentTask[i][type].push(content);
                         tasks[date] = currentTask;
 
-                        state.tasksLocalArray = { ...tasks };
+                        state.tasksLocalArray[project] = { ...tasks };
                         saveToLocalStorage(state.tasksLocalArray);
                         break;
                     }
@@ -93,8 +51,8 @@ export default createStore({
         },
         changeFieldCommentOrSubtask(state, char) {
             // type -> comments | subtasks  field -> any field
-            const [date, idTask, idElement, newName, type, field] = char;
-            const tasks = state.tasksLocalArray;
+            const [date, idTask, idElement, newName, type, field, project] = char;
+            const tasks = state.tasksLocalArray[project];
             const currentTasks = tasks?.[date];
 
             if (currentTasks) {
@@ -105,7 +63,7 @@ export default createStore({
                                 element[field] = newName;
 
                                 tasks[date] = currentTasks;
-                                state.tasksLocalArray = { ...tasks };
+                                state.tasksLocalArray[project] = { ...tasks };
 
                                 saveToLocalStorage(state.tasksLocalArray);
                                 break;
@@ -117,8 +75,8 @@ export default createStore({
         },
         deleteCommentOrSubtask(state, char) {
             // type -> 'comments' | 'subtasks'
-            const tasks = state.tasksLocalArray;
-            const [date, id, contentId, type] = char;
+            const [date, id, contentId, type, project] = char;
+            const tasks = state.tasksLocalArray[project];
             const currentTasks = tasks?.[date];
 
             if (currentTasks) {
@@ -131,64 +89,101 @@ export default createStore({
                         break;
                     }
                 }
+ 
                 tasks[date] = currentTasks;
-                state.tasksLocalArray = { ...tasks };
+                state.tasksLocalArray[project] = { ...tasks };
                 saveToLocalStorage(state.tasksLocalArray);
             }
         },
 
         addTask(state, char) {
-            state.tasksLocalArray = createTask(...char);
+            const [data, project] = char;
+            state.tasksLocalArray = createTask(...data, project);
+            saveToLocalStorage(state.tasksLocalArray);
         },
 
-        changeInfoTask(state, searchArg = { date: "", id: "" }) {
-            if (state.tasksLocalArray?.[searchArg.date]) {
-                state.currentInfoEl = state.tasksLocalArray[
-                    searchArg.date
-                ].find((el) => el.id === searchArg.id);
+        setActiveTask(state, char) {
+            const [date, id,  project, type] = char;
+            if (!type) { // type !== 'bin'
+                if (state.tasksLocalArray?.[project]?.[date]) {
+                    const activeTask = state.tasksLocalArray[project][date].find((el) => el.id === id);
+                    state.currentInfoEl = activeTask;
+                }
+            }
+            else {
+                if (state.binCard.length) {
+                    const activeTask = state.binCard.find((el) => el.id === id);
+                    state.currentInfoEl = activeTask;
+                }
             }
         },
 
-        deleteTask(state, searchArg = { date: "", id: "" }) {
-            const taskInfoObj = state.tasksLocalArray?.[searchArg.date];
+        deleteTask(state, char) {
+            const [date, id,  project] = char;
+            const taskInfoObj = state.tasksLocalArray?.[project]?.[date];
 
             if (taskInfoObj) {
-                const result = taskInfoObj.filter(
-                    (el) => el.id !== searchArg.id
-                );
+                const deletedTasks = state.binCard;
 
-                state.tasksLocalArray[searchArg.date] = result;
+                const result = taskInfoObj.filter(
+                    (el) => {
+                       if (el.id !== id) return el;
+                       else deletedTasks.push(el);
+                    }
+                );
+                if (result.length === 0) delete state.tasksLocalArray[project][date];
+                else {
+                    state.tasksLocalArray[project][date] = result;
+                }    
+
+                state.binCard = [ ...deletedTasks ];
+                saveToLocalStorage(state.binCard, "bin");
                 saveToLocalStorage(state.tasksLocalArray);
             }
         },
 
         doneTask(state, char) {
-            const [date, idTask] = char;
+            const [date, idTask, project] = char;
             const tasks = state.tasksLocalArray;
-            const currentTasks = tasks?.[date];
+            let currentTasks = tasks?.[project]?.[date];
 
             if (currentTasks) {
-                for (let task of currentTasks) {
-                    if (task.id === idTask) {
-                        task["complete"] = !task["complete"];
-                        break;
+                // for (let task of currentTasks) {
+                //     if (task.id === idTask) {
+                //         task["complete"] = !task["complete"];
+                //         break;
+                //     }
+                // }
+                console.log(currentTasks)
+                currentTasks = currentTasks.map(el => {
+                    if (el.id === idTask) {
+                        const task = el;
+                        task["complete"] = !el["complete"]
+                        return { ...task };
                     }
-                }
-                tasks[date] = currentTasks;
+                    return { ...el };
+                })
+
+                tasks[project][date] = [ ...currentTasks];
+
                 state.tasksLocalArray = { ...tasks };
 
                 saveToLocalStorage(state.tasksLocalArray);
             }
         },
 
+        doneTaskInMyTasks(state, char) {
+
+        },
+
         changeValueTask(state, char) {
             // only for key of first level
-            const task = state.tasksLocalArray;
-            const [date, value, id, type] = char;
+            const [date, value, id, type, project] = char;
+            const tasks = state.tasksLocalArray;
 
-            if (task?.[date]) {
-                const array = [];
-                const interArray = task[date];
+            if (tasks?.[project]?.[date]) {
+                let array = [];
+                const interArray = tasks[project][date];
 
                 for (let i = 0; i < interArray.length; i++) {
                     if (interArray[i].id !== id) array.push(interArray[i]);
@@ -197,16 +192,17 @@ export default createStore({
                         array.push(interArray[i]);
                     }
                 }
-                task[date] = [...array];
-                state.tasksLocalArray = { ...task };
+                tasks[project][date] = [...array];
+                array = [];
+                state.tasksLocalArray = { ...tasks };
 
-                saveToLocalStorage(task);
+                saveToLocalStorage(state.tasksLocalArray);
             }
         },
 
         moveTask(state, char) {
-            const tasks = state.tasksLocalArray;
-            const [date, id, position] = char;
+            const [date, id, position, project] = char;
+            const tasks = state.tasksLocalArray?.[project];
 
             if (["left", "right"].includes(position)) {
                 const regex = /\d+/g;
@@ -237,7 +233,7 @@ export default createStore({
                                 tasks[essentialDate] = objectSliced;
                             }
 
-                            if (!tasks[date].length) delete tasks[date];
+                            if (tasks[date].length === 0) delete tasks[date];
                         }
                     }
                 }
@@ -267,8 +263,11 @@ export default createStore({
                 currentDay.splice(step, 0, ...task);
                 tasks[date] = currentDay;
             }
-            state.tasksLocalArray = { ...tasks };
+            state.tasksLocalArray[project] = { ...tasks };
             saveToLocalStorage(tasks);
+        },
+        setTypeSort(state, type) {
+            if (type) state.sortType = type;
         },
     },
     actions: {
@@ -276,15 +275,16 @@ export default createStore({
     },
     getters: {
         getTask: (state) => (char) => {
-            const [date, idTask] = char;
-            const task = state.tasksLocalArray?.[date];
+            const [date, idTask, project] = char;
+            const task = state.tasksLocalArray?.[project]?.[date];
             if (task) {
                 return task.find((el) => el.id === idTask);
             }
+            else return [];
         },
         getLevelSubtasks: (state) => (char) => {
-            const [date, idSubtask] = char;
-            const task = state.tasksLocalArray?.[date];
+            const [date, idSubtask, project] = char;
+            const task = state.tasksLocalArray?.[project]?.[date];
 
             let quantityCompletedSubtask = 0;
             let quantitySubtasksAll = 0;
@@ -302,18 +302,93 @@ export default createStore({
             }
             return [quantityCompletedSubtask, quantitySubtasksAll];
         },
-        getStateIsCompletedTask: (state) => (char) => {
-            const [date, idTask] = char;
-            const tasks = state.tasksLocalArray;
+        getFieldFirstLevelTask: (state) => (char) => {
+            const [date, idTask, type, project] = char;
+            const tasks = state.tasksLocalArray?.[project];
             const currentTasks = tasks?.[date];
 
             if (currentTasks) {
                 for (let task of currentTasks) {
                     if (task.id === idTask) {
-                        return task["complete"];
+                        return task[type];
                     }
                 }
             }
         },
+        getQuantityCompletedTasks: (state) => (project) => {
+            if (state.tasksLocalArray?.[project]) {
+                const allTasks = Object.values(state.tasksLocalArray[project]).flat();
+
+                let quantityCompletedTasks = 0;
+                let quantityTasks = allTasks.length;
+
+                for (let item of allTasks) {
+                    if (item.complete === true) quantityCompletedTasks++;
+                }
+                return [quantityCompletedTasks, quantityTasks];
+            }
+            return [0, 0];
+        },
+        getSortedTask: (state) => (char) => {
+            const [date, project] = char;
+            const taskByDate = state.tasksLocalArray?.[project]?.[date];
+            const typeSorted = state.sortType;
+
+            if (taskByDate) {
+                if (typeSorted === "sort_by_priority") {
+                    const prioritySorted = {
+                        high: [],
+                        middle: [],
+                        low: [],
+                        neutral: [],
+                    };
+
+                    for (let task of taskByDate) {
+                        if (task.priority in prioritySorted)
+                            prioritySorted[task.priority].push(task);
+                        else prioritySorted["neutral"].push(task);
+                    }
+                    return Object.values(prioritySorted).flat();
+                } 
+
+                else if (typeSorted === "sort_by_default") return taskByDate;
+
+                else if (typeSorted === "sort_by_time") {
+                    const arrayForSort = [...taskByDate];
+                    return arrayForSort.sort((a, b) => b.id - a.id)
+                } 
+
+                else if (typeSorted === "sort_by_estimation") {
+
+                    const toMinutes = (objectTime) => {
+                        if (objectTime instanceof Object) {
+                            const hours = objectTime.h;
+                            const min = objectTime.m;
+
+                            return (Number(hours) * 60 + Number(min));
+                        }
+                        return Infinity;
+                    }
+                    const arrayForSort = [...taskByDate];
+                    return arrayForSort.sort((a, b) => toMinutes(a.timeLimit) - toMinutes(b.timeLimit));
+
+
+                } 
+                else if (typeSorted === "sort_by_type") {
+                    const typeSorted = {
+                        Call: [],
+                        Meeting: [],
+                        Action: [],
+                    };
+                    for (let task of taskByDate) {
+                        if (task.type in typeSorted)
+                            typeSorted[task.type].push(task);
+                    }
+                    return Object.values(typeSorted).flat();
+                }
+
+                else return taskByDate;
+            }
+        },
     },
-});
+};

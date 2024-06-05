@@ -1,48 +1,76 @@
 <script setup>
-import { ref } from "vue";
 import NavigationMenu from "../components/NavigationMenu/NavigationMenu.vue";
+import IndicatorCompletedTask from "../components/IndicatorCompletedTasks/IndicatorCompletedTasks.vue";
+import ProjectsList from "../components/ProjectsList/ProjectsList.vue";
+import SearchProject from "../components/SearchProject/SearchProject.vue";
+import { useStore } from "vuex";
+import { computed } from "vue";
+import Avatar from "../../PersonalInformation/components/Avatar/Avatar.vue";
 
+    const props = defineProps({
+        isClosedSideBar: Boolean,
+    });
 
-const isClosedSideBar = ref(false);
+    const store = useStore();
 
-const toggleShiftBar = () => {
-    isClosedSideBar.value = !isClosedSideBar.value;
-}
+    const imageAvatar = computed(() => store.state.infoUser.infoUserState["avatarImage"])
 
 </script>
 
 <template>
     <nav class="side-panel" :class="{'stateBarHide' : isClosedSideBar, 'stateBarShow' : !isClosedSideBar}">
         <div class="top_line">
-            <div v-if="!isClosedSideBar" class="avatar">A</div>
-            <div v-if="!isClosedSideBar" class="name">werwe</div>
-            <div class="close" :class="{'rotate': !isClosedSideBar}" @click="toggleShiftBar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="#b3b3b3" viewBox="0 0 17 17"><path d="m15.2 8.5-4.35 3.35-.7-.7 2.64-2.65-2.64-2.65.7-.7 3.36 3.35zM7 17h1V0H7v17z"/></svg>
+            <div v-if="!isClosedSideBar" class="avatar">
+                <RouterLink to="/personal-info">
+                    <Avatar :choisenImageOrColor="imageAvatar" :fontSize="'22px'" />
+                </RouterLink>
+            </div>
+            <div v-if="!isClosedSideBar" class="name">Aleksander</div>
+            <div class="close" :class="{'rotate': isClosedSideBar}" @click="$emit('toggle-side-bar')">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20" height="20" viewBox="0 0 490 490">
+                    <path d="m15.8 245 458.4 245V0L15.8 245zm225.44 0 129.99-69.48v138.95L241.24 245z" fill="#e6e6e6"/>
+                </svg>
             </div>
         </div>
-        <NavigationMenu :isClosedSideBar="isClosedSideBar" />
+        <div class="wrapper">
+            <NavigationMenu :isClosedSideBar="isClosedSideBar" />
+            <SearchProject v-if="!isClosedSideBar" />
+            <ProjectsList :isClosedSideBar="isClosedSideBar"/>
+            <div v-if="!isClosedSideBar" class="conteiner-indicator">
+                <IndicatorCompletedTask />
+            </div>
+        </div>
     </nav>
 </template>
 
 <style scoped lang="scss">
     .side-panel {
-        min-width: 20%;
+        position: relative;
+        width: 20%;
         height: auto;
         overflow: hidden;
         border-right: solid 1px #e6e6e6;
     }
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 90%;
+    }
+    .conteiner-indicator {
+        width: 100%;
+    }
     .avatar {
-        font-size: 25px;
-        font-weight: bold;
-        color: #4d4d4d;
-        text-align: center;
         line-height: 40px;
         height: 40px;
         width: 40px;
-        background-color: green;
         border-radius: 5px;
         cursor: pointer;
-        background-color: #f3f3f3;
+        a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
     }
     .name {
         font-size: 18px;
@@ -72,14 +100,16 @@ const toggleShiftBar = () => {
         padding: 0 5px;
         width: 40px;
         svg {
-            transition-duration: 400ms;
-        }
-        &:hover svg {
-            fill: #0553c9;
+            path {
+                transition-duration: 400ms;
+                &:hover {
+                    fill: #cf181859;
+                }
+            }
         }
     }
     .rotate {
-        transform: rotate(-180deg);
+        transform: rotate(180deg) translateX(-5px);
         animation: opacitySign 500ms ease forwards;
     }
 
@@ -95,19 +125,19 @@ const toggleShiftBar = () => {
     @keyframes shiftAimationBarShow {
         0% {
             opacity: 0;
-            min-width: 60px;
+            width: 60px;
         }
         40% {
             opacity: 0.02;
         }
         100% {
             opacity: 1;
-            min-width: 20%;
+            width: 20%;
         }
     }
     @keyframes shiftAimationBarHide {
         to {
-            min-width: 60px;
+            width: 60px;
             opacity: 1;
         }
     }

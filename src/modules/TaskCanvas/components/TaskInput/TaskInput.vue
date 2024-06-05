@@ -31,7 +31,8 @@ const createTask = (e) => {
     const capitalizeName = capitalize(props.nameTaskInput);
 
     if (capitalizeName.length > 0) {
-        store.commit("addTask", [props.date, capitalizeName])
+        const nameProject = store.state.projectsStore.currentProject;
+        store.commit("addTask", [[props.date, capitalizeName], nameProject])
         e.target.value = '';
     }
 }
@@ -39,7 +40,7 @@ const createTask = (e) => {
 </script>
 
 <template>
-    <div class="task_input-block"  >
+    <div class="task_input-block">
         <div class="task_text-area" @click="createFocus" @focusout.stop="focusOut">
             <textarea @input="$emit('name-task', $event.target.value)" 
                                         @keydown.enter.prevent="createTask"
@@ -64,10 +65,13 @@ const createTask = (e) => {
 </template>
 
 <style scoped lang="scss">
-
+    .task_input-block {
+        margin: 0 5px;
+    }
     .task_text-area {
         height: 35px;
         padding-top: 5px;
+        margin-bottom: 10px;
         width: 100%;
         background-color: #fff;
         border-radius: 5px;

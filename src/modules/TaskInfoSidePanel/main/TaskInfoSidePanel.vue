@@ -1,4 +1,5 @@
 <script setup>
+import LineActionsTask from "../components/LineActionsTask/LineActionsTask.vue";
 import RowInfoTask from "../components/RowInfoTask/RowInfoTask.vue";
 
 const props = defineProps({
@@ -7,14 +8,13 @@ const props = defineProps({
 });
 
 
+
 </script>
 
 <template>
     <div class="task-panel-side">
         <div class="wrapper_content">
-            <div class="task-panel__actions">
-    
-            </div>
+            <LineActionsTask :data="data"/>
             <div class="task-panel__name">
                 <h2>{{ props.name }}</h2>
             </div>
@@ -33,6 +33,8 @@ const props = defineProps({
 
 <style scoped lang="scss">
     .wrapper_content {
+        position: relative;
+        z-index: 99999;
         padding: 30px;
         overflow-y: auto;
         height: 70%;
@@ -54,4 +56,5 @@ const props = defineProps({
             font-size: 1.9rem;
         }
     }
+
 </style>

@@ -1,14 +1,11 @@
 <script setup>
 import MyTasksLine from "../MyTasksLine/MyTasksLine.vue";
 
-
     const props = defineProps({
         day: String,
         data: Array,
     });
 
-
-    
 </script>
 <template>
     <div class="list-tasks">
@@ -24,7 +21,8 @@ import MyTasksLine from "../MyTasksLine/MyTasksLine.vue";
         </div>
         <div class="conteiner-tasks">
             <MyTasksLine v-for="item of data"
-                         :key="item.id"
+                         :key="item.id + item.taskName"
+                         :id="item.id"
                          :data="item"
             />
         </div>

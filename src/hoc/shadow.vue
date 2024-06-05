@@ -5,7 +5,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div @click.stop="$emit('close-window', $event.target.matches('.shadow-window'))" 
+    <div @click="$emit('close-window', $event.target.matches('.shadow-window'))" 
          class="shadow-window" :class="{'open': isOpenWindow, 'close': props.isOpenWindow === false}">
         <slot></slot>
     </div>

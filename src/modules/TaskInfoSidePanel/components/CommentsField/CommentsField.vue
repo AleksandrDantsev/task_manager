@@ -3,6 +3,9 @@ import { ref, computed } from 'vue';
 import CommentUnit from '../CommentUnit/CommentUnit.vue';
 import { useStore } from 'vuex';
 import { capitalize } from "../../../../helpers/capitalize";
+import buttonSendRed from '../../../../UI/button-send-red.vue';
+import { getReadableDate } from '../../../../helpers/getReadableDate';
+import { getHoursAndMin } from "../../../../helpers/getHoursAndMin";
 
 const store = useStore();
 const props = defineProps({
@@ -11,22 +14,35 @@ const props = defineProps({
 });
 
 const commentText = ref('');
-const tasks = computed(() => store.state.tasksLocalArray);
+const tasks = computed(() => {
+    const nameProject = store.state.projectsStore.currentProject;
+    return store.state.infoTask.tasksLocalArray[nameProject];
+});
 
-const listComments = computed(() => props.date ? tasks.value[props.date].find(el => el.id === props.id)['comments'] : [])
+const listComments = computed(() => {
+    if (props.date && tasks.value?.[props.date]) {
+        return tasks.value[props.date].find(el => el.id === props.id)?.['comments']; 
+}
+    return [];
+})
+
+const dataInfoUser = computed(() => store.state.infoUser.infoUserState);
 
 const sendComment = () => {
     const formatedText = capitalize(commentText.value)
     const idComment = (new Date).getTime();
 
+    const creator = `${dataInfoUser.value["firstName"]} ${dataInfoUser.value["lastName"]}`;
+    const timeCreated = `${getReadableDate()} ${getHoursAndMin()}`;
     const comment = { 
-        creator: 'string',
+        creator: creator,
         name: formatedText,
-        time: 'now',
+        time: timeCreated,
         id: idComment, 
     } 
     if (formatedText.length > 0) {
-        store.commit("addCommentOrSubtask", [props.date, props.id, comment, "comments"]);
+        const nameProject = store.state.projectsStore.currentProject;
+        store.commit("addCommentOrSubtask", [props.date, props.id, comment, "comments", nameProject]);
         commentText.value = '';
     }
 }
@@ -43,7 +59,7 @@ const getTextComment = (e) => {
                 <svg width="18" height="18" viewBox="0 0 16 10" xmlns="http://www.w3.org/2000/svg" fill="#b3b3b3"><path fill-rule="evenodd" clip-rule="evenodd" d="m4 11.29 1-1v1.42l-1.15 1.14L3 12.5V10H1.5L1 9.5v-8l.5-.5h12l.5.5V6h-1V2H2v7h1.5l.5.5v1.79zM10.29 13l1.86 1.85.85-.35V13h1.5l.5-.5v-5l-.5-.5h-8l-.5.5v5l.5.5h3.79zm.21-1H7V8h7v4h-1.5l-.5.5v.79l-1.15-1.14-.35-.15z"/></svg>
             </div>
             <div class="title">Comments</div>
-            <div class="counter-comments">{{ listComments.length }}</div>
+            <div class="counter-comments">{{ listComments?.length || 0 }}</div>
         </div>
         <div class="comments">
             <CommentUnit v-for="item of listComments"
@@ -51,6 +67,7 @@ const getTextComment = (e) => {
                         :data="item"
                         :id="props.id"
                         :date="props.date"
+                        :dataInfoUser="dataInfoUser"
             />
 
         </div>
@@ -63,12 +80,9 @@ const getTextComment = (e) => {
                         placeholder="Text"></textarea>
             </div>
             <div class="send-button-conteiner">
-                <button @click="sendComment" 
-                class="send-button" 
-                :class="{'disallow-click': !commentText.length}"
-                type="button">
-                Send
-            </button>
+                <div class="send-button" :class="{'disallow-click': !commentText.length}">
+                    <buttonSendRed :text="'Send'" @click="sendComment" />
+                </div>
             </div>
         </div>
     </div>
@@ -86,6 +100,7 @@ const getTextComment = (e) => {
         padding: 15px 25px 0 25px;
         height: $heightInputWrapper;
         background-color: #f5f5f5d8;
+        box-shadow: 0 -10px 20px 0 #fff;
     }
 
     $baseColor: #e01212;
@@ -130,18 +145,14 @@ const getTextComment = (e) => {
             resize: none;
         }
     }
+    .send-button {
+        width: 120px;
+        height: 35px;
+    }
     .send-button-conteiner {
         display: flex;
+        width: 100%;
         justify-content: end;
-        padding: 5px 0 20px 0;
     }
-    .send-button {
-        width: 100px;
-        height: 30px;
-        border-radius: 5px;
-        color: #fff;
-        cursor: pointer;
-        transition-duration: 400ms;
-        background-color: $baseColor;
-    }
+
 </style>

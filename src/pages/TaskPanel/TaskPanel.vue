@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { TaskCanvas } from '../../modules/TaskCanvas/index';
 import { TaskFiltersRow } from '../../modules/TaskFiltersRow';
 import { getReadableDate } from "../../helpers/getReadableDate";
-
+import { Bin } from "../../modules/Bin/index";
 
 const shiftDate = ref(0);
 const changeShiftDate = (bool) => bool === true ? shiftDate.value = shiftDate.value + 1 :
@@ -26,21 +26,25 @@ const arrayDateShift = computed(() => {
             <TaskCanvas v-for="item of arrayDateShift"
                         :key="item"
                         :date="item"/>
+            <Bin />
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
     .wrapper {
+        
         display: flex;
         flex-direction: column; 
         padding: 10px;
-        background-color: #fafafad8;
+        background-color: #f7f7fd4f;
+        overflow-x: auto;
+        max-height: 90%;
         width: 100%; 
     }
     .task-panel {
+        position: relative;
         display: flex;
         min-height: calc(100% - 90px);
-        overflow-x: auto;
     }
 </style>

@@ -10,7 +10,8 @@ const props = defineProps({
 const store = useStore();
 // date, id, position
 const moveTaskIntoSibling = (direction) => {
-    store.commit("moveTask", [props.date, props.id, direction])
+    const nameProject = store.state.projectsStore.currentProject;
+    store.commit("moveTask", [props.date, props.id, direction, nameProject])
 }
 
 </script>

@@ -4,6 +4,7 @@ import buttonRegular from '../../../../UI/button-regular.vue';
         name: String,
         textButton: String,
         value: String,
+        classname: String,
     });
 
 </script>
@@ -16,11 +17,12 @@ import buttonRegular from '../../../../UI/button-regular.vue';
             </div>
             <div class="name"><h5>{{ props.name }}</h5></div>
         </div>
-        <div class="actions-info" @click="$emit('setValue', textButton)"
-            :class="{'priority': name === 'Priority', ['pr-' + value]: Boolean(props.value)}" >
+        <div class="actions-info"
+            :class="{[classname]: true, 'priority': name === 'Priority', ['pr-' + value]: Boolean(props.value)}" >
             <buttonRegular v-if="!value" :text="props.textButton" :style="'classic'"/>
             <buttonRegular v-else-if="name !== 'Priority'" :text="props.value" :style="'unvisible'"/>
             <span v-else class="priority-text" >{{ value }}</span>
+            <slot name="drop"></slot>
         </div>
     </div>
 </template>
@@ -50,6 +52,7 @@ import buttonRegular from '../../../../UI/button-regular.vue';
         }
     }
     .actions-info {
+        position: relative;
         min-width: 40px;
         text-align: center;
         padding: 3px 2px;

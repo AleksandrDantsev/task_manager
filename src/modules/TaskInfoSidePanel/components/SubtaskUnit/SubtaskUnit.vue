@@ -18,6 +18,7 @@ const allowEditAndSubmit = () => {
     }
     else {
         const capitalizeText = capitalize(newTaskText.value);
+        const nameProject = store.state.projectsStore.currentProject;
         store.commit("changeFieldCommentOrSubtask", [
             props.date, 
             props.id, 
@@ -25,12 +26,14 @@ const allowEditAndSubmit = () => {
             capitalizeText,
             "subtasks",
             "name",
+            nameProject,
         ]);
         isUserEdit.value = false;
     }
 }
 
 const completedTask = () => {
+    const nameProject = store.state.projectsStore.currentProject;
     store.commit("changeFieldCommentOrSubtask", [
             props.date, 
             props.id, 
@@ -38,11 +41,13 @@ const completedTask = () => {
             !props.data.isCompleted,
             "subtasks",
             "isCompleted",
+            nameProject,
         ]);
 }
 
 const deleteSubtask = () => {
-    store.commit("deleteCommentOrSubtask", [props.date, props.id, props.data.id, "subtasks"]);
+    const nameProject = store.state.projectsStore.currentProject;
+    store.commit("deleteCommentOrSubtask", [props.date, props.id, props.data.id, "subtasks", nameProject]);
 }
 
 const changeSubtaskText = (e) => {

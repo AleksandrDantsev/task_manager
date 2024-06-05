@@ -9,20 +9,18 @@ const props = defineProps({
 const store = useStore();
 
 const isCompleted = computed(() => {
-    const task = store.getters.getTask([props.data.date, props.data.id]);
+    const task = store.getters.getTask([props.data.date, props.data.id, props.data["project"]]);
     return task ? task.complete : false;
 })
 
-const completedTask = () => {
-    store.commit("changeValueTask", [
+const completeTask = () => {
+    const projectName = store.state.projectsStore.currentProject;
+    store.commit("doneTask", [
             props.data.date, 
-            !Boolean(isCompleted.value),
             props.data.id, 
-            "complete",
+            props.data.project,
         ]);
 }
-
-
 
 const openInfoTask = (e) => {
     if (e.target.id !== "done_task") {
@@ -36,7 +34,7 @@ const openInfoTask = (e) => {
     <div class="list-task-line" @click="openInfoTask" :class="{'isCompleted-task': isCompleted}">
         <ul class="list-row">
             <li class="done">
-                <button type="button" id="done_task" @click="completedTask" 
+                <button type="button" id="done_task" @click="completeTask" 
                         :class="{'isCompleted': isCompleted}">
                 </button>
             </li>

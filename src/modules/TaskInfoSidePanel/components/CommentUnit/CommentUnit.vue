@@ -6,6 +6,7 @@ const props = defineProps({
     data: Object,
     id: Number,
     date: String,
+    dataInfoUser: Object,
 });
 
 const store = useStore();
@@ -13,13 +14,13 @@ const isOpenEdit = ref(false);
 const changedTextInput = ref(props.data.name);
 
 const allowEditAndSubmit = () => {
-    console.log(props.data)
     if (isOpenEdit.value === false) {
         isOpenEdit.value = true;
     }
     else {
         const capitalizeText = capitalize(changedTextInput.value);
         if (capitalizeText.length) {
+            const nameProject = store.state.projectsStore.currentProject;
             store.commit("changeFieldCommentOrSubtask", [
                 props.date, 
                 props.id, 
@@ -27,6 +28,7 @@ const allowEditAndSubmit = () => {
                 capitalizeText,
                 "comments",
                 "name",
+                nameProject,
             ]);
             isOpenEdit.value = false;
         }
@@ -34,7 +36,8 @@ const allowEditAndSubmit = () => {
 }
 
 const deleteComment = () => {
-    store.commit("deleteCommentOrSubtask", [props.date, props.id, props.data.id, "comments"])
+    const nameProject = store.state.projectsStore.currentProject;
+    store.commit("deleteCommentOrSubtask", [props.date, props.id, props.data.id, "comments", nameProject])
 }
 
 const changeTextComment = (e) => {
@@ -77,6 +80,9 @@ const changeTextComment = (e) => {
             </div>
         </div>
         <div class="text-comment">
+            <div class="avatar-creator">
+                <img src="" alt="">
+            </div>
             <input type="text"
                 class="input-comment"
                 @keydown.prevent.enter="allowEditAndSubmit"

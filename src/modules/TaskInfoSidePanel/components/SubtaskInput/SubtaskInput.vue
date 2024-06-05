@@ -21,11 +21,13 @@ import { capitalize } from "../../../../helpers/capitalize";
         const capitalizeName = capitalize(valueSubtask.value);
 
         if (capitalizeName.length) {
+            const nameProject = store.state.projectsStore.currentProject;
             store.commit("addCommentOrSubtask", [
                 props.date, 
                 props.id, 
                 {name: capitalizeName, isCompleted: false, id: idTask},
                 "subtasks",
+                nameProject,
             ]);
             valueSubtask.value = '';
         }

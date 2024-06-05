@@ -12,7 +12,8 @@ import SubtaskUnit from "../SubtaskUnit/SubtaskUnit.vue";
 
     const subtasksArray = computed(() => {
         if (props.date && props.id) {
-            return store.getters.getTask([props.date, props.id])['subtasks'] || [];
+            const nameProject = store.state.projectsStore.currentProject;
+            return store.getters.getTask([props.date, props.id, nameProject])?.['subtasks'] || [];
         }
         return [];
     })
